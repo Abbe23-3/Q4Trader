@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+.quantlab-theme {
+  --ql-bg: #edf3f8;
+  --ql-bg-accent: rgba(10, 52, 95, 0.08);
+  --ql-grid: rgba(15, 23, 42, 0.06);
+  --ql-panel: rgba(255, 255, 255, 0.76);
+  --ql-panel-strong: rgba(255, 255, 255, 0.92);
+  --ql-line: rgba(15, 23, 42, 0.1);
+  --ql-ink: #0f172a;
+  --ql-muted: #5f6b7a;
+  --ql-accent: #0f4d8a;
+  --ql-accent-soft: #dce8f8;
+  --ql-positive: #0f766e;
+  --ql-negative: #b42318;
+  --ql-warning: #b54708;
+  min-height: 100%;
+  color: var(--ql-ink);
+}
+
+.quantlab-theme main {
+  position: relative;
+}
+
+.quantlab-theme main::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--ql-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ql-grid) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.28), transparent 82%);
+}
+
+.quantlab-theme .js-plotly-plot .plotly .modebar {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+.quantlab-theme .js-plotly-plot,
+.quantlab-theme .js-plotly-plot .plot-container,
+.quantlab-theme .js-plotly-plot .plot-container > div,
+.quantlab-theme .js-plotly-plot .svg-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.quantlab-theme .js-plotly-plot .main-svg,
+.quantlab-theme .js-plotly-plot .svg-container {
+  overflow: hidden !important;
+}

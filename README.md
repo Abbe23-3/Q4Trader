@@ -1,127 +1,138 @@
-# Q4Trader
+# Research Platforms
 
-Institutional-grade equity valuation and scenario modeling engine designed to replicate professional investment analysis workflows.
+This repository contains one public website with two financial research applications:
 
----
+- `Q4Trader` for valuation and earnings-driven equity research
+- `QuantLab` for quantitative modelling, simulation, strategy research, and regime analysis
 
-## Overview
+The site is implemented with Next.js and is intended to deploy on Vercel. QuantLab also includes a Python backend for stochastic simulation and research APIs.
 
-Q4Trader is a structured equity valuation platform built to translate operating assumptions into disciplined valuation outputs. The application formalizes how professional investors bridge enterprise value, capital structure, and equity pricing through a transparent EV/EBITDA framework.
+## Live App Structure
 
-The system connects:
+- `/q4trader` runs the new Q4Trader application inside the shared site
+- `/quantlab` is the QuantLab platform entry point
+- `/quantlab/simulation` runs the stochastic simulation dashboard
+- `/quantlab/mean-reversion` runs the statistical arbitrage research dashboard
+- `/quantlab/regimes` runs the regime detection dashboard
+- `/quantlab/research` documents the mathematical models used in QuantLab
 
-- Operating performance (EBITDA)
-- Capital structure (Net Debt)
-- Market regime assumptions (valuation multiples)
+## Project Structure
 
-to derive scenario-based equity value outcomes and implied share prices.
+```text
+app/                     Next.js App Router entrypoints
+apps/q4trader/           Q4Trader frontend + logic
+apps/quantlab/frontend/  QuantLab UI
+apps/quantlab/quant_engine/ Quant models and research code
+apps/quantlab/api/       FastAPI backend for QuantLab simulation
+shared/                  Shared site components
+site/                    Homepage and site navigation
+```
 
-The objective is not simply to compute valuation metrics, but to encode institutional underwriting logic into a clean, reproducible interface aligned with buy-side and advisory workflows.
+## Local Development
 
----
+### 1. Install frontend dependencies
 
-## Core Capabilities
+```bash
+npm install
+```
 
-### 1. Enterprise Valuation Framework
-- Real-time EV/EBITDA computation
-- Market Cap and Enterprise Value derivation
-- Free Cash Flow yield calculation
-- Net Debt / EBITDA leverage monitoring
+### 2. Create and install the Python environment
 
-### 2. Scenario Modeling
-- Bull / Base / Bear multiple scenarios
-- Instant implied equity value and share price recalculation
-- Explicit downside protection (equity floor at zero)
+```bash
+/opt/homebrew/bin/python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+```
 
-### 3. Forward Projection Engine
-- EBITDA growth assumption modeling
-- Debt paydown (deleveraging) modeling
-- Forward re-rating analysis
-- Forward scenario implied price outputs
+If `python3` already points to a newer Python on your machine, that is also fine.
 
-### 4. Multiple Sensitivity Analysis
-- EV/EBITDA multiple sweep (5x–15x)
-- Dynamic equity re-pricing visualization
-- Interactive institutional-style chart (Recharts)
+### 3. Start the QuantLab backend
 
-### 5. Research Export
-- Automated multi-page PDF generation
-- Clean A4 layout with margins and title formatting
-- Scenario outputs suitable for investment discussion
+```bash
+source .venv/bin/activate
+uvicorn apps.quantlab.api.main:app --reload --port 8000
+```
 
----
+Or without activating the environment:
 
-## Financial Methodology
+```bash
+.venv/bin/uvicorn apps.quantlab.api.main:app --reload --port 8000
+```
 
-Q4Trader follows an enterprise-value-first valuation structure.
+### 4. Start the website
 
-### Enterprise Value
+```bash
+npm run dev
+```
 
-Enterprise Value is calculated as:
+Open:
 
-EV = Market Capitalization + Net Debt
+- `http://localhost:3000`
+- `http://localhost:3000/q4trader`
+- `http://localhost:3000/quantlab`
+- `http://localhost:8000/docs`
 
-EV/EBITDA is used as the primary valuation anchor due to capital structure neutrality and comparability across companies.
+## Environment Variables
 
-### Equity Bridge
+QuantLab simulation uses an environment-based API URL on the frontend.
 
-Implied equity value is derived as:
+Create `.env.local` from `.env.example` when needed.
 
-Implied Enterprise Value = Multiple × EBITDA  
-Implied Equity Value = Implied Enterprise Value − Net Debt  
-Implied Share Price = Implied Equity Value / Shares Outstanding  
+```bash
+cp .env.example .env.local
+```
 
-Negative equity scenarios are floored at zero to reflect economic reality.
+Current variable:
 
-### Forward Re-Rating Logic
+- `NEXT_PUBLIC_QUANTLAB_API_BASE_URL`
 
-Forward EBITDA and forward net debt assumptions are used to evaluate:
+Local default fallback in code:
 
-- Operating expansion
-- Balance sheet deleveraging
-- Potential multiple expansion or compression
-- Equity accretion under improved fundamentals
+- `http://localhost:8000`
 
-This mirrors how private equity underwriting and hedge fund re-rating theses are structured.
+## Deploy Strategy
 
----
+### Frontend
 
-## Technology Stack
+Deploy the Next.js app to Vercel.
 
-- React (functional architecture)
-- Vite (build tooling)
-- Recharts (valuation sensitivity visualization)
-- jsPDF (research report generation)
-- html2canvas (dashboard capture for PDF export)
+Required Vercel environment variable:
 
-Financial logic is fully separated from UI components to maintain modeling clarity and extensibility.
+```bash
+NEXT_PUBLIC_QUANTLAB_API_BASE_URL=https://your-quantlab-api.example.com
+```
 
----
+### Backend
 
-## Strategic Intent
+QuantLab's FastAPI backend should be deployed separately from Vercel unless you intentionally restructure it into Vercel Python Functions.
 
-Q4Trader was built to demonstrate:
+Recommended hosts:
 
-- Structured valuation thinking
-- Scenario-driven risk framing
-- Capital structure awareness
-- Assumption transparency
-- Communication-ready outputs
+- Railway
+- Render
+- Fly.io
 
-The architecture reflects how valuation work is performed in investment banking, private equity screening, and fundamental hedge fund analysis.
+Backend entrypoint:
 
----
+```bash
+uvicorn apps.quantlab.api.main:app --host 0.0.0.0 --port 8000
+```
 
-## Planned Enhancements
+## Pre-Deploy Checks
 
-- AI-assisted earnings report parsing and KPI extraction
-- Multi-year integrated financial projection engine
-- Monte Carlo valuation simulations
-- Institutional dark-mode analytical interface
-- Comparable company benchmarking module
+Frontend:
 
----
+```bash
+npm run build
+```
 
-## Disclaimer
+Python modules:
 
-This tool is for educational and analytical demonstration purposes only and does not constitute investment advice.
+```bash
+PYTHONPYCACHEPREFIX=/tmp/q4trader_pycache .venv/bin/python -m compileall apps/quantlab/api apps/quantlab/quant_engine apps/quantlab/__init__.py apps/__init__.py
+```
+
+## Notes
+
+- The new Q4Trader app inside `apps/q4trader` is the version intended to ship with the new website.
+- QuantLab can use a local backend now and be switched to a real deployed API later through `NEXT_PUBLIC_QUANTLAB_API_BASE_URL`.
+- Real-time APIs can be added later without changing the public route structure; the backend layer is already separated for that purpose.
