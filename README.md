@@ -107,15 +107,32 @@ QuantLab's FastAPI backend should be deployed separately from Vercel unless you 
 
 Recommended hosts:
 
-- Railway
 - Render
-- Fly.io
+- Railway
 
 Backend entrypoint:
 
 ```bash
 uvicorn apps.quantlab.api.main:app --host 0.0.0.0 --port 8000
 ```
+
+### Render setup
+
+This repo includes a root-level `render.yaml` that defines the QuantLab API as a Render free web service.
+
+Render uses:
+
+- build command: `pip install -r requirements.txt`
+- start command: `uvicorn apps.quantlab.api.main:app --host 0.0.0.0 --port $PORT`
+- health check: `/health`
+
+Required Render environment variable:
+
+```bash
+QUANTLAB_CORS_ORIGINS=https://q4-trader.vercel.app
+```
+
+If you later use a second Vercel domain, add it as a comma-separated list.
 
 ## Pre-Deploy Checks
 
